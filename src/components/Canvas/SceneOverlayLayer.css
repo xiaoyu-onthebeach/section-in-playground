@@ -1,0 +1,49 @@
+.scene-overlay-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 15;
+}
+
+.scene-label {
+  position: absolute;
+  transform: translateY(calc(-100% - 6px));
+  font-size: 14px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+.scene-menu-btn {
+  position: absolute;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: #26262c;
+  border: 1px solid #40404a;
+  border-radius: 4px;
+  color: #ffffff;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.03), 0px 1px 6px -1px rgba(0, 0, 0, 0.02), 0px 2px 4px rgba(0, 0, 0, 0.02);
+  pointer-events: auto;
+}
+
+.scene-menu-btn:hover {
+  background: #2f2f37;
+}
+
+/* Matches SceneView's `.scene__trapped-tint` alpha — same "covered by the
+   section in front of it" look, applied to this scene's label/button since
+   they live in a separate screen-space layer that doesn't otherwise know
+   about that stacking. */
+.scene-label--covered,
+.scene-menu-btn--covered {
+  opacity: 0.4;
+}

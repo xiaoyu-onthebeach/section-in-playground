@@ -1,0 +1,36 @@
+.app-topbar {
+  height: 52px;
+  flex: none;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  background: var(--bg-app);
+  border-bottom: 1px solid var(--border-strong);
+}
+
+.app-topbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-topbar__logo {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-blue), var(--section-border));
+}
+
+.app-topbar__crumb {
+  font-size: 13px;
+  color: var(--text-tertiary);
+}
+
+.app-topbar__crumb--active {
+  color: var(--text-primary);
+}
+
+.app-topbar__sep {
+  color: var(--text-tertiary);
+  font-size: 12px;
+}

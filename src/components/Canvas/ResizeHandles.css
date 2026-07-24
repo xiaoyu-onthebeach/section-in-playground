@@ -1,0 +1,9 @@
+.resize-handle {
+  position: absolute;
+  /* Invisible hit target — resizing is signaled by the selected border's
+     highlight color alone, not a visible grab dot. Still fully draggable. */
+  background: transparent;
+  border: none;
+  pointer-events: auto;
+  touch-action: none;
+}

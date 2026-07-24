@@ -1,0 +1,17 @@
+.draw-preview {
+  position: absolute;
+  /* Border is drawn separately in SectionBordersLayer (screen-space, fixed
+     width regardless of zoom) — this element only supplies the fill, which
+     stays here (behind scenes, inside canvas-world). */
+  background: #26262ccc;
+  border-radius: 12px;
+  pointer-events: none;
+}
+
+.marquee-preview {
+  position: absolute;
+  border: 1.5px solid var(--section-border-selected);
+  background: #26262ccc;
+  pointer-events: none;
+}
+a

@@ -1,0 +1,74 @@
+.section-box {
+  position: absolute;
+}
+
+.section-visual {
+  position: absolute;
+  inset: 0;
+  box-sizing: border-box;
+  /* Selectable/draggable anywhere in the section's area — bands/label/handles
+     paint on top and stopPropagation their own pointerdowns, so this only
+     ever fires for genuine background clicks within the section. Border
+     itself is drawn by SectionBordersLayer, a screen-space overlay — this
+     element only supplies the fill. */
+  pointer-events: auto;
+  cursor: move;
+  background: var(--section-fill);
+  border-radius: 24px;
+  transition: box-shadow 120ms ease-out, filter 120ms ease-out;
+}
+
+.section-visual:hover:not(.section-visual--highlight) {
+  box-shadow: 0px 1px 6px -1px rgba(0, 0, 0, 0.8);
+  filter: drop-shadow(0px 1px 2px #ffffff1a) drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.02));
+}
+
+.section-visual--highlight {
+  background: var(--section-fill-highlight);
+}
+
+.section-box--moving .section-visual {
+  opacity: 0.9;
+}
+
+.section-band {
+  position: absolute;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.section-band--n,
+.section-band--s {
+  left: 0;
+  right: 0;
+  cursor: ns-resize;
+}
+
+.section-band--n {
+  top: 0;
+}
+
+.section-band--s {
+  bottom: 0;
+}
+
+.section-band--w,
+.section-band--e {
+  top: 0;
+  bottom: 0;
+  cursor: ew-resize;
+}
+
+.section-band--w {
+  left: 0;
+}
+
+.section-band--e {
+  right: 0;
+}
+
+.section-corner {
+  position: absolute;
+  pointer-events: auto;
+  touch-action: none;
+}

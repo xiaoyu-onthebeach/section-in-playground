@@ -1,0 +1,138 @@
+.debug-panel {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 260px;
+  background: var(--bg-panel-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 14px;
+  z-index: 45;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+.debug-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.debug-panel__close {
+  background: transparent;
+  border: none;
+  color: var(--text-tertiary);
+  font-size: 16px;
+  line-height: 1;
+  width: 20px;
+  height: 20px;
+}
+
+.debug-panel__close:hover {
+  color: var(--text-primary);
+}
+
+.debug-panel__reopen {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 45;
+  background: var(--bg-panel-raised);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 6px 10px;
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.debug-panel__section {
+  margin-bottom: 12px;
+}
+
+.debug-panel__label {
+  color: var(--text-tertiary);
+  font-size: 11px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.debug-panel__membership {
+  background: var(--bg-app);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 8px;
+  font-family: 'SFMono-Regular', Menlo, Consolas, monospace;
+  font-size: 11px;
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.debug-panel__membership-row {
+  margin-bottom: 4px;
+  word-break: break-word;
+}
+
+.debug-panel__section-name {
+  color: var(--section-border-highlight);
+}
+
+.debug-panel__members {
+  color: var(--text-secondary);
+}
+
+.debug-panel__muted {
+  color: var(--text-tertiary);
+}
+
+.debug-panel__toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.debug-panel__slider {
+  margin-bottom: 10px;
+}
+
+.debug-panel__slider:last-child {
+  margin-bottom: 0;
+}
+
+.debug-panel__slider-label {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.debug-panel__slider input[type='range'] {
+  width: 100%;
+}
+
+.debug-panel__color-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+  color: var(--text-secondary);
+}
+
+.debug-panel__color-row:last-child {
+  margin-bottom: 0;
+}
+
+.debug-panel__color-row input[type='color'] {
+  width: 28px;
+  height: 20px;
+  padding: 0;
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  background: none;
+  cursor: pointer;
+}

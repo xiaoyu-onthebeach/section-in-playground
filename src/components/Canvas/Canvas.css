@@ -1,0 +1,24 @@
+.canvas-area {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+.canvas-root {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background-color: var(--bg-canvas);
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.09) 1.4px, transparent 1.4px);
+  touch-action: none;
+  user-select: none;
+}
+
+.canvas-world {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+}

@@ -1,0 +1,23 @@
+.section-borders-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.section-border-box {
+  position: absolute;
+  box-sizing: border-box;
+  border-style: solid;
+  background: transparent;
+  pointer-events: none;
+}
+
+.draw-preview-border {
+  position: absolute;
+  box-sizing: border-box;
+  border-style: solid;
+  border-color: var(--section-border-selected);
+  background: transparent;
+  pointer-events: none;
+}

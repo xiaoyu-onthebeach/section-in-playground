@@ -1,0 +1,35 @@
+:root {
+  --bg-app: #0b0b0d;
+  --bg-canvas: #131316;
+  --bg-panel: #131316;
+  --bg-panel-raised: #1a1a1e;
+  --bg-hover: rgba(255, 255, 255, 0.06);
+  --bg-active: #26262c;
+
+  --border-subtle: #40404A;
+  --border-strong: #2f2f37;
+
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.65);
+  --text-tertiary: rgba(255, 255, 255, 0.45);
+
+  --accent-blue: #2d88ff;
+  --accent-blue-hover: #4c98ff;
+
+  --section-border: #377add;
+  --section-border-neutral: rgba(255, 255, 255, 0.35);
+  --section-border-selected: rgba(255, 255, 255, 0.45);
+  --section-border-highlight: var(--section-border-selected);
+  --section-fill: #ffffff4a;
+  --section-fill-highlight: var(--bg-hover);
+  --section-invalid: #e5484d;
+
+  --radius-toolbar: 32px;
+  --radius-card: 16px;
+  --radius-thumb: 8px;
+  --radius-chip: 4px;
+
+  --font-family: 'Saans', -apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue', Arial, sans-serif;
+
+  --shadow-toolbar: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 8px rgba(0, 0, 0, 0.25);
+}
