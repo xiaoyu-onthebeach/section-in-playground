@@ -39,11 +39,11 @@
   background: #2f2f37;
 }
 
-/* Matches SceneView's `.scene__trapped-tint` alpha — same "covered by the
+/* Matches SceneView's `.scene--trapped` opacity — same "covered by the
    section in front of it" look, applied to this scene's label/button since
    they live in a separate screen-space layer that doesn't otherwise know
    about that stacking. */
 .scene-label--covered,
 .scene-menu-btn--covered {
-  opacity: 0.4;
+  opacity: 0.5;
 }

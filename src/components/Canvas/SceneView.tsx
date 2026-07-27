@@ -90,7 +90,6 @@ export function SceneView({ scene, isSelected, isLeaving, isCapturePreview, isTr
           backgroundPosition: 'center',
         }}
       />
-      {isTrapped && <div className="scene__trapped-tint" />}
     </div>
   );
 }

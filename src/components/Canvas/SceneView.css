@@ -48,9 +48,6 @@
 /* Simulates the section's fill being drawn "in front of" this scene (see
    Canvas.tsx's `isTrapped`) without actually moving the scene behind the
    section's own interactive fill layer — which would make it unclickable. */
-.scene__trapped-tint {
-  position: absolute;
-  inset: 24px;
-  background: rgba(10, 14, 24, 0.4);
-  pointer-events: none;
+.scene--trapped {
+  opacity: 0.5;
 }
