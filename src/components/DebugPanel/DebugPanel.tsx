@@ -22,7 +22,7 @@ export function DebugPanel() {
   const setSectionBorderColor = useCanvasStore((s) => s.setSectionBorderColor);
   const setSectionIconColor = useCanvasStore((s) => s.setSectionIconColor);
   const membership = useMembership();
-  const hasSelectionBar = useCanvasStore((s) => s.selection.sceneIds.length > 0);
+  const hasSelectionBar = useCanvasStore((s) => s.selection.sceneIds.length >= 2);
 
   const membersBySection = new Map<string, string[]>();
   for (const id of sceneOrder) {

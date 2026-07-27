@@ -11,7 +11,7 @@ export function MultiSelectBar() {
   const deleteScenes = useCanvasStore((s) => s.deleteScenes);
   const showToast = useCanvasStore((s) => s.showToast);
 
-  if (sceneIds.length === 0) return null;
+  if (sceneIds.length < 2) return null;
 
   return (
     <div className="multi-select-bar">
