@@ -4,7 +4,7 @@ export const SECTION_MIN_HEIGHT = 150;
 /** All mock scenes are square at this size. */
 export const SCENE_SIZE = 1024;
 
-export const WRAP_PADDING_DEFAULT = 64;
+export const WRAP_PADDING_DEFAULT = 32;
 export const WRAP_PADDING_MIN = 8;
 /** Debug panel's "Wrap padding" slider bounds. */
 export const WRAP_PADDING_SLIDER_MIN = 24;
