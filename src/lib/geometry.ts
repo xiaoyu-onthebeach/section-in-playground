@@ -18,18 +18,23 @@ export function uniformPadding(padding: number): EdgePadding {
 /**
  * Padding for growing/wrapping/shrinking a section around scenes, accounting
  * for each scene's fixed-screen-size chrome (name label above, "..." menu
- * button below) on top of the base padding — divided by zoom to convert
- * their constant on-screen size into the matching world-space amount at the
- * current zoom, so the section's boundary visually encloses the chrome too,
- * not just the bare scene frame. Left/right get only the base padding since
- * there's no chrome on those sides.
+ * button below) on top of the base padding. The debug panel's sliders label
+ * this value in "px" — for that to mean anything stable, the base amount
+ * itself also needs to be a fixed on-screen size, not a raw world-space
+ * number (which would visually shrink to near-nothing at low zoom while the
+ * chrome terms stayed constant, making the box look lopsided — tight on the
+ * sides, oversized top/bottom). So every side is divided by zoom the same
+ * way, converting the intended constant on-screen amount into the matching
+ * world-space amount at the current zoom; top/bottom then add their own
+ * chrome allowance on top, left/right don't since there's no chrome there.
  */
 export function chromeAwarePadding(basePadding: number, zoom: number): EdgePadding {
+  const base = basePadding / zoom;
   return {
-    top: basePadding + SCENE_LABEL_CHROME_HEIGHT / zoom,
-    bottom: basePadding + SCENE_MENU_CHROME_HEIGHT / zoom,
-    left: basePadding,
-    right: basePadding,
+    top: base + SCENE_LABEL_CHROME_HEIGHT / zoom,
+    bottom: base + SCENE_MENU_CHROME_HEIGHT / zoom,
+    left: base,
+    right: base,
   };
 }
 

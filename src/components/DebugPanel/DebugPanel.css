@@ -11,6 +11,11 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   font-size: 12px;
   color: var(--text-primary);
+  transition: top 150ms ease-out;
+}
+
+.debug-panel--shifted {
+  top: 72px;
 }
 
 .debug-panel__header {
@@ -46,6 +51,11 @@
   padding: 6px 10px;
   color: var(--text-secondary);
   font-size: 12px;
+  transition: top 150ms ease-out;
+}
+
+.debug-panel__reopen--shifted {
+  top: 72px;
 }
 
 .debug-panel__section {

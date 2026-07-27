@@ -1,8 +1,20 @@
 import { useEffect } from 'react';
 import { useCanvasStore } from '../store/canvasStore';
+import { screenToWorld } from '../lib/coords';
 
 function isTypingTarget(t: EventTarget | null): boolean {
   return t instanceof HTMLElement && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable);
+}
+
+/** World point at the center of the visible canvas — used as the drop point for keyboard-triggered create actions, which (unlike their right-click-menu counterparts) have no cursor position to anchor to. */
+function canvasCenterWorld() {
+  const el = document.querySelector('.canvas-root');
+  const rect = el?.getBoundingClientRect();
+  const screenCenter = rect
+    ? { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
+    : { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+  const origin = { x: rect?.left ?? 0, y: rect?.top ?? 0 };
+  return screenToWorld(useCanvasStore.getState().viewport, screenCenter, origin);
 }
 
 /**
@@ -39,7 +51,24 @@ export function useKeyboardShortcuts() {
         return;
       }
 
-      if (mod && !e.altKey && e.code === 'KeyS') {
+      if (mod && e.shiftKey && !e.altKey && e.code === 'KeyS') {
+        e.preventDefault();
+        store.createSceneAt(canvasCenterWorld());
+        return;
+      }
+
+      if (mod && e.altKey && !e.shiftKey && e.code === 'KeyS') {
+        e.preventDefault();
+        // Matches the "Create new section" copy shown in both the scene
+        // right-click menu (wraps the selection) and the empty-canvas menu
+        // (drops an empty section at the click point) — same shortcut hint,
+        // so it needs to actually do the right thing in both contexts.
+        if (store.selection.sceneIds.length > 0) store.wrapSelectionIntoSection();
+        else store.createSectionAt(canvasCenterWorld());
+        return;
+      }
+
+      if (mod && !e.altKey && !e.shiftKey && e.code === 'KeyS') {
         e.preventDefault(); // block the browser Save dialog
         if (store.selection.sceneIds.length > 0) store.wrapSelectionIntoSection();
         return;

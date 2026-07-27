@@ -75,7 +75,7 @@
 
 .context-menu__shortcut {
   flex: none;
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   font-size: 12px;
 }
 

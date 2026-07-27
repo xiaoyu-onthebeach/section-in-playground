@@ -42,6 +42,7 @@ export function SectionContextMenu() {
             <span className="context-menu__item-content">
               <span className="context-menu__label">Create new scene</span>
             </span>
+            <span className="context-menu__shortcut">⌘⇧S</span>
           </button>
           <button
             className="context-menu__item"
@@ -53,6 +54,7 @@ export function SectionContextMenu() {
             <span className="context-menu__item-content">
               <span className="context-menu__label">Create new section</span>
             </span>
+            <span className="context-menu__shortcut">⌘⌥S</span>
           </button>
         </div>
       </>
@@ -72,8 +74,9 @@ export function SectionContextMenu() {
             }}
           >
             <span className="context-menu__item-content">
-              <span className="context-menu__label">Create section</span>
+              <span className="context-menu__label">Create new section</span>
             </span>
+            <span className="context-menu__shortcut">⌘⌥S</span>
           </button>
         </div>
       </>
@@ -90,7 +93,6 @@ export function SectionContextMenu() {
   // just this one.
   const targetIds = selectionSectionIds.includes(sectionId) && selectionSectionIds.length > 1 ? selectionSectionIds : [sectionId];
   const isBulk = targetIds.length > 1;
-  const suffix = isBulk ? ` (${targetIds.length})` : '';
   const totalMemberCount = targetIds.reduce((sum, id) => sum + membersOfSection(id, scenes).length, 0);
 
   return (
@@ -105,7 +107,7 @@ export function SectionContextMenu() {
           }}
         >
           <span className="context-menu__item-content">
-            <span className="context-menu__label">Copy section{suffix}</span>
+            <span className="context-menu__label">Copy section</span>
           </span>
           {!isBulk && <span className="context-menu__shortcut">⌘C</span>}
         </button>
@@ -117,7 +119,7 @@ export function SectionContextMenu() {
           }}
         >
           <span className="context-menu__item-content">
-            <span className="context-menu__label">Duplicate section{suffix}</span>
+            <span className="context-menu__label">Duplicate section</span>
           </span>
           {!isBulk && <span className="context-menu__shortcut">⌘D</span>}
         </button>
@@ -173,7 +175,7 @@ export function SectionContextMenu() {
             <span className="context-menu__icon">
               <RemoveSectionIcon />
             </span>
-            <span className="context-menu__label">Clear section{suffix}</span>
+            <span className="context-menu__label">Clear section</span>
           </span>
         </button>
         <div className="context-menu__divider" />
@@ -205,7 +207,7 @@ export function SectionContextMenu() {
             <span className="context-menu__icon">
               <DeleteIcon />
             </span>
-            <span className="context-menu__label">Delete{suffix}</span>
+            <span className="context-menu__label">Delete</span>
           </span>
         </button>
       </div>

@@ -15,6 +15,7 @@ import { SectionContextMenu } from '../ContextMenu/SectionContextMenu';
 import { Toast } from '../Toast/Toast';
 import { Toolbar } from '../Toolbar/Toolbar';
 import { DebugPanel } from '../DebugPanel/DebugPanel';
+import { MultiSelectBar } from '../MultiSelectBar/MultiSelectBar';
 import './Canvas.css';
 
 const GRID_SIZE = 80; // 32 * 1.4 — 40% more space between dots
@@ -303,6 +304,7 @@ export function Canvas() {
         </div>
         <Toolbar />
         <DebugPanel />
+        <MultiSelectBar />
       </div>
       <SectionContextMenu />
       <Toast />

@@ -1,0 +1,45 @@
+.multi-select-bar {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 46;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+}
+
+.multi-select-bar__group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 48px;
+  padding: 0 12px;
+  gap: 2px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  box-shadow: var(--shadow-toolbar);
+}
+
+.multi-select-bar__btn {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 24px;
+  border: none;
+  border-radius: 16px;
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+
+.multi-select-bar__divider {
+  width: 1px;
+  height: 24px;
+  background: var(--border-subtle);
+}

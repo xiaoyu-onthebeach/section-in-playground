@@ -22,6 +22,7 @@ export function DebugPanel() {
   const setSectionBorderColor = useCanvasStore((s) => s.setSectionBorderColor);
   const setSectionIconColor = useCanvasStore((s) => s.setSectionIconColor);
   const membership = useMembership();
+  const hasSelectionBar = useCanvasStore((s) => s.selection.sceneIds.length > 0);
 
   const membersBySection = new Map<string, string[]>();
   for (const id of sceneOrder) {
@@ -35,14 +36,17 @@ export function DebugPanel() {
 
   if (!open) {
     return (
-      <button className="debug-panel__reopen" onClick={() => setOpen(true)}>
+      <button
+        className={`debug-panel__reopen${hasSelectionBar ? ' debug-panel__reopen--shifted' : ''}`}
+        onClick={() => setOpen(true)}
+      >
         Debug
       </button>
     );
   }
 
   return (
-    <div className="debug-panel">
+    <div className={`debug-panel${hasSelectionBar ? ' debug-panel--shifted' : ''}`}>
       <div className="debug-panel__header">
         <span>Debug</span>
         <button className="debug-panel__close" onClick={() => setOpen(false)}>
