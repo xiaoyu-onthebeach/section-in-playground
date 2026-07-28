@@ -1,6 +1,7 @@
 import { useCanvasStore } from '../../store/canvasStore';
-import { useScenePosition, useVisuallyCoveredSceneIds } from '../../hooks/useDerivedState';
+import { useActiveCaptureIds, useScenePosition, useVisuallyCoveredSceneIds } from '../../hooks/useDerivedState';
 import { worldToScreen } from '../../lib/coords';
+import { CHROME_HIDE_ZOOM_THRESHOLD, SCENE_HOVER_WRAP_PADDING, SCENE_LABEL_CHROME_HEIGHT, SCENE_MENU_CHROME_HEIGHT } from '../../lib/constants';
 import type { SceneModel } from '../../types';
 import './SceneOverlayLayer.css';
 
@@ -17,22 +18,32 @@ export function SceneOverlayLayer() {
   const sceneOrder = useCanvasStore((s) => s.sceneOrder);
   const scenes = useCanvasStore((s) => s.scenes);
   const { coveredIds } = useVisuallyCoveredSceneIds();
+  const captureIds = useActiveCaptureIds();
 
   return (
     <div className="scene-overlay-layer">
       {sceneOrder.map((id) => {
         const scene = scenes[id];
         if (!scene) return null;
-        return <SceneOverlayItem key={id} scene={scene} isCovered={coveredIds.has(id)} />;
+        return <SceneOverlayItem key={id} scene={scene} isCovered={coveredIds.has(id)} isCapturePreview={captureIds.has(id)} />;
       })}
     </div>
   );
 }
 
-function SceneOverlayItem({ scene, isCovered }: { scene: SceneModel; isCovered: boolean }) {
+function SceneOverlayItem({
+  scene,
+  isCovered,
+  isCapturePreview,
+}: {
+  scene: SceneModel;
+  isCovered: boolean;
+  isCapturePreview: boolean;
+}) {
   const pos = useScenePosition(scene);
   const viewport = useCanvasStore((s) => s.viewport);
   const isSelected = useCanvasStore((s) => s.selection.sceneIds.includes(scene.id));
+  const isHovered = useCanvasStore((s) => s.hoveredSceneId === scene.id);
   const selectScene = useCanvasStore((s) => s.selectScene);
   const openSceneContextMenu = useCanvasStore((s) => s.openSceneContextMenu);
 
@@ -47,27 +58,52 @@ function SceneOverlayItem({ scene, isCovered }: { scene: SceneModel; isCovered: 
     openSceneContextMenu(e.clientX, e.clientY);
   };
 
+  const hideChrome = viewport.zoom <= CHROME_HIDE_ZOOM_THRESHOLD;
+
   return (
     <>
-      {/* Sits above the frame, left-aligned to it — outside the scene, mirroring section labels. */}
-      <span
-        className={['scene-label', isCovered && 'scene-label--covered'].filter(Boolean).join(' ')}
-        style={{ left: topLeft.x, top: topLeft.y, maxWidth }}
-        title={scene.name.length > 28 ? scene.name : undefined}
-      >
-        {scene.name}
-      </span>
-      {/* Sits below the frame, right-aligned to it — outside the scene, mirroring the label's placement above. */}
-      <button
-        className={['scene-menu-btn', isCovered && 'scene-menu-btn--covered'].filter(Boolean).join(' ')}
-        style={{ left: bottomRight.x - BUTTON_SIZE, top: bottomRight.y + BUTTON_GAP }}
-        onPointerDown={(e) => e.stopPropagation()}
-        onClick={openMenu}
-        onContextMenu={openMenu}
-        aria-label="Scene options"
-      >
-        <MoreVerticalIcon />
-      </button>
+      {/* Outline wrapping the label above, the frame, and the menu button
+          below, as one unit — shown on hover, stays while selected (this
+          replaces the old inner border on the scene itself as the selected
+          treatment), and also while the scene is a live capture-preview
+          target of a section being dragged over it, so it reads as "about to
+          join" the same way hovering it directly does. Sits in this same
+          screen-space layer so its fixed-px padding/chrome-allowance never
+          scales with zoom. */}
+      {(isHovered || isSelected || isCapturePreview) && (
+        <div
+          className={['scene-hover-wrap', isSelected && 'scene-hover-wrap--selected'].filter(Boolean).join(' ')}
+          style={{
+            left: topLeft.x - SCENE_HOVER_WRAP_PADDING,
+            top: topLeft.y - SCENE_LABEL_CHROME_HEIGHT - SCENE_HOVER_WRAP_PADDING,
+            width: bottomRight.x - topLeft.x + SCENE_HOVER_WRAP_PADDING * 2,
+            height: bottomRight.y - topLeft.y + SCENE_LABEL_CHROME_HEIGHT + SCENE_MENU_CHROME_HEIGHT + SCENE_HOVER_WRAP_PADDING * 2,
+          }}
+        />
+      )}
+      {!hideChrome && (
+        <>
+          {/* Sits above the frame, left-aligned to it — outside the scene, mirroring section labels. */}
+          <span
+            className={['scene-label', isCovered && 'scene-label--covered'].filter(Boolean).join(' ')}
+            style={{ left: topLeft.x, top: topLeft.y, maxWidth }}
+            title={scene.name.length > 28 ? scene.name : undefined}
+          >
+            {scene.name}
+          </span>
+          {/* Sits below the frame, right-aligned to it — outside the scene, mirroring the label's placement above. */}
+          <button
+            className={['scene-menu-btn', isCovered && 'scene-menu-btn--covered'].filter(Boolean).join(' ')}
+            style={{ left: bottomRight.x - BUTTON_SIZE, top: bottomRight.y + BUTTON_GAP }}
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={openMenu}
+            onContextMenu={openMenu}
+            aria-label="Scene options"
+          >
+            <MoreVerticalIcon />
+          </button>
+        </>
+      )}
     </>
   );
 }

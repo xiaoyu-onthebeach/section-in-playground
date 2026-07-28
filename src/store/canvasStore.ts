@@ -12,7 +12,7 @@ import type {
   ToolId,
   Viewport,
 } from '../types';
-import { clampMinSize, isFullyInside, rectsIntersect, translateRect, boundingBox, growToContain, chromeAwarePadding } from '../lib/geometry';
+import { clampMinSize, isFullyInside, rectsIntersect, translateRect, boundingBox, growToContain, chromeAwarePadding, sceneOutlineGap } from '../lib/geometry';
 import { computeAutoShrink, computeDropTarget, computeWrapRect } from '../lib/dragLogic';
 import { membersOfSection } from '../lib/membership';
 import { makeId } from '../lib/id';
@@ -67,6 +67,10 @@ interface CanvasState {
   /** Live resize preview rect per section id — see dragOriginRects. */
   resizePreviewRects: Record<string, Rect> | null;
   growingSectionId: string | null;
+  /** Section currently under the pointer (plain hover, no drag) — drives the border's default/hover visibility in SectionBordersLayer. */
+  hoveredSectionId: string | null;
+  /** Scene currently under the pointer (plain hover, no drag) — drives the wrap-outline shown around its label/frame/menu button in SceneOverlayLayer. */
+  hoveredSceneId: string | null;
   scenarioId: string;
 
   undoStack: CanvasSnapshot[];
@@ -153,6 +157,8 @@ interface CanvasState {
   undo: () => void;
   redo: () => void;
 
+  setHoveredSection: (id: string | null) => void;
+  setHoveredScene: (id: string | null) => void;
   setDebugShowBounds: (v: boolean) => void;
   setGrowPadding: (v: number) => void;
   setGrowDuration: (v: number) => void;
@@ -232,6 +238,8 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
   drawPreviewRect: null,
   resizePreviewRects: null,
   growingSectionId: null,
+  hoveredSectionId: null,
+  hoveredSceneId: null,
   scenarioId: 'default',
 
   undoStack: [],
@@ -259,6 +267,8 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
       drawPreviewRect: null,
       resizePreviewRects: null,
       growingSectionId: null,
+      hoveredSectionId: null,
+      hoveredSceneId: null,
       scenarioId: id,
       undoStack: [],
       redoStack: [],
@@ -1079,25 +1089,32 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
 
     const snap_ = snapshot(s);
     const { width: w, height: h } = scene;
+    // VARIATION_GAP is the desired visual gap between each new scene's
+    // hover/selection outline, not its bare frame — sceneOutlineGap adds in
+    // the label/menu-button chrome and the outline's own padding (all fixed
+    // screen-px, see SceneOverlayLayer's scene-hover-wrap), converted through
+    // the current zoom, same technique as chromeAwarePadding. Without this,
+    // a small raw gap left neighboring outlines overlapping.
+    const { horizontal: colGap, vertical: rowGap } = sceneOutlineGap(VARIATION_GAP, s.viewport.zoom);
     const startX = scene.x; // left-aligned with the source scene, not centered
-    let startY = scene.y + h + VARIATION_GAP;
+    let startY = scene.y + h + rowGap;
 
     // If the row right below the source scene is already occupied by another
     // scene, drop the new row below every existing scene instead — simplest
     // way to guarantee empty space without a full bin-packing search.
-    const rowWidth = w * 4 + VARIATION_GAP * 3;
+    const rowWidth = w * 4 + colGap * 3;
     const proposedRow = { x: startX, y: startY, width: rowWidth, height: h };
     const otherScenes = Object.values(s.scenes).filter((sc) => sc.id !== sceneId);
     if (otherScenes.some((sc) => rectsIntersect(proposedRow, sc))) {
       const maxBottom = Math.max(scene.y + h, ...otherScenes.map((sc) => sc.y + sc.height));
-      startY = maxBottom + VARIATION_GAP;
+      startY = maxBottom + rowGap;
     }
 
     const offsets = [
       { x: 0, y: 0 },
-      { x: w + VARIATION_GAP, y: 0 },
-      { x: (w + VARIATION_GAP) * 2, y: 0 },
-      { x: (w + VARIATION_GAP) * 3, y: 0 },
+      { x: w + colGap, y: 0 },
+      { x: (w + colGap) * 2, y: 0 },
+      { x: (w + colGap) * 3, y: 0 },
     ];
 
     const newScenes = { ...s.scenes };
@@ -1231,6 +1248,8 @@ export const useCanvasStore = create<CanvasState>((set, get) => ({
     });
   },
 
+  setHoveredSection: (id) => set({ hoveredSectionId: id }),
+  setHoveredScene: (id) => set({ hoveredSceneId: id }),
   setDebugShowBounds: (v) => set((s) => ({ debug: { ...s.debug, showBounds: v } })),
   setGrowPadding: (v) => set((s) => ({ debug: { ...s.debug, growPadding: v } })),
   setGrowDuration: (v) => set((s) => ({ debug: { ...s.debug, growDuration: v } })),

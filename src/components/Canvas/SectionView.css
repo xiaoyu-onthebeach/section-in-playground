@@ -14,7 +14,10 @@
   pointer-events: auto;
   cursor: move;
   background: var(--section-fill);
-  border-radius: 24px;
+  /* border-radius set inline (SectionView.tsx) as SECTION_BORDER_RADIUS / zoom
+     — this element lives inside canvas-world's scale(zoom) transform, so a
+     literal CSS value here would visually shrink/grow with zoom, unlike the
+     border overlay's (already-zoom-invariant) radius it needs to match. */
   transition: box-shadow 120ms ease-out, filter 120ms ease-out;
 }
 

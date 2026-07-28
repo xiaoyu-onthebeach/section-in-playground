@@ -2,6 +2,7 @@ import { useCanvasStore } from '../../store/canvasStore';
 import type { ResizeHandle, SectionModel } from '../../types';
 import { useSectionRect, useDragHighlight, useSectionBackground } from '../../hooks/useDerivedState';
 import { useCanvasOrigin } from '../../canvas/CanvasOriginContext';
+import { SECTION_BORDER_RADIUS } from '../../lib/constants';
 import './SectionView.css';
 
 interface Props {
@@ -48,6 +49,7 @@ export function SectionView({ section }: Props) {
   const selectSection = useCanvasStore((s) => s.selectSection);
   const openContextMenu = useCanvasStore((s) => s.openSectionContextMenu);
   const tool = useCanvasStore((s) => s.tool);
+  const setHoveredSection = useCanvasStore((s) => s.setHoveredSection);
   const { toWorld } = useCanvasOrigin();
 
   // The border band now resizes along that edge (the whole edge is a resize
@@ -141,10 +143,12 @@ export function SectionView({ section }: Props) {
         // size instead of popping to it instantly.
         transition: (isGrowing || isHighlighted) && !isMoving && !isResizing ? `left ${growDuration}ms ease-out, top ${growDuration}ms ease-out, width ${growDuration}ms ease-out, height ${growDuration}ms ease-out` : 'none',
       }}
+      onPointerEnter={() => setHoveredSection(section.id)}
+      onPointerLeave={() => setHoveredSection(null)}
     >
       <div
         className={['section-visual', isHighlighted && 'section-visual--highlight'].filter(Boolean).join(' ')}
-        style={{ background: isHighlighted ? undefined : backgroundColor }}
+        style={{ background: isHighlighted ? undefined : backgroundColor, borderRadius: SECTION_BORDER_RADIUS / zoom }}
         onPointerDown={onInteriorPointerDown}
         onPointerMove={onInteriorPointerMove}
         onPointerUp={onInteriorPointerUp}

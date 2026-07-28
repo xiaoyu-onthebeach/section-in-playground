@@ -1,10 +1,12 @@
 .draw-preview {
   position: absolute;
   /* Border is drawn separately in SectionBordersLayer (screen-space, fixed
-     width regardless of zoom) — this element only supplies the fill, which
-     stays here (behind scenes, inside canvas-world). */
+     width/radius regardless of zoom) — this element only supplies the fill,
+     which stays here (behind scenes, inside canvas-world). border-radius is
+     set inline (DragOverlays.tsx) as DRAW_PREVIEW_BORDER_RADIUS / zoom, to
+     counteract canvas-world's scale(zoom) transform and match that fixed
+     radius visually. */
   background: #26262ccc;
-  border-radius: 12px;
   pointer-events: none;
 }
 

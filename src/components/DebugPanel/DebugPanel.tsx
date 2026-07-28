@@ -6,7 +6,7 @@ import { ScenariosDropdown } from '../ScenariosDropdown/ScenariosDropdown';
 import './DebugPanel.css';
 
 export function DebugPanel() {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const sectionOrder = useCanvasStore((s) => s.sectionOrder);
   const sections = useCanvasStore((s) => s.sections);
   const scenes = useCanvasStore((s) => s.scenes);

@@ -1,9 +1,11 @@
 import { useCanvasStore } from '../../store/canvasStore';
+import { DRAW_PREVIEW_BORDER_RADIUS } from '../../lib/constants';
 import './DragOverlays.css';
 
 export function DragOverlays() {
   const dragState = useCanvasStore((s) => s.dragState);
   const drawPreviewRect = useCanvasStore((s) => s.drawPreviewRect);
+  const zoom = useCanvasStore((s) => s.viewport.zoom);
 
   if (dragState?.kind === 'section-draw' && drawPreviewRect) {
     return (
@@ -14,6 +16,7 @@ export function DragOverlays() {
           top: drawPreviewRect.y,
           width: drawPreviewRect.width,
           height: drawPreviewRect.height,
+          borderRadius: DRAW_PREVIEW_BORDER_RADIUS / zoom,
         }}
       />
     );

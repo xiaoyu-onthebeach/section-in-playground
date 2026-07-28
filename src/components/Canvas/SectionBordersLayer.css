@@ -11,6 +11,7 @@
   border-style: solid;
   background: transparent;
   pointer-events: none;
+  transition: border-width 100ms ease-out, border-color 100ms ease-out;
 }
 
 .draw-preview-border {

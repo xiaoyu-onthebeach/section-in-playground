@@ -1,5 +1,5 @@
 import type { Rect } from '../types';
-import { SCENE_LABEL_CHROME_HEIGHT, SCENE_MENU_CHROME_HEIGHT } from './constants';
+import { SCENE_HOVER_WRAP_PADDING, SCENE_LABEL_CHROME_HEIGHT, SCENE_MENU_CHROME_HEIGHT } from './constants';
 
 export const rectRight = (r: Rect) => r.x + r.width;
 export const rectBottom = (r: Rect) => r.y + r.height;
@@ -36,6 +36,27 @@ export function chromeAwarePadding(basePadding: number, zoom: number): EdgePaddi
     left: base,
     right: base,
   };
+}
+
+/**
+ * World-space gap between two side-by-side (or stacked) scenes that renders
+ * as literally `baseGap` screen-px between their hover/selection *outlines*
+ * (SceneOverlayLayer's scene-hover-wrap) rather than their bare frames —
+ * otherwise a small gap plus each outline's own fixed-screen-px chrome
+ * allowance (label above, menu button below, the outline's own padding)
+ * overlaps neighboring scenes' outlines. Same technique as
+ * chromeAwarePadding: every fixed screen-px term is divided by zoom to turn
+ * it into the matching world-space amount at the current zoom. `vertical` is
+ * taller than `horizontal` since stacked scenes need both the label chrome
+ * above AND the menu-button chrome below in between, while side-by-side ones
+ * only need the outline's own side padding.
+ */
+export function sceneOutlineGap(baseGap: number, zoom: number): { horizontal: number; vertical: number } {
+  const gap = baseGap / zoom;
+  const side = SCENE_HOVER_WRAP_PADDING / zoom;
+  const top = (SCENE_LABEL_CHROME_HEIGHT + SCENE_HOVER_WRAP_PADDING) / zoom;
+  const bottom = (SCENE_MENU_CHROME_HEIGHT + SCENE_HOVER_WRAP_PADDING) / zoom;
+  return { horizontal: gap + 2 * side, vertical: gap + top + bottom };
 }
 
 /** Fully-inside containment: outer must fully contain inner (touching edges count as inside). */

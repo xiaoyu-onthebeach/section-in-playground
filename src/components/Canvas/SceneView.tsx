@@ -8,12 +8,11 @@ interface Props {
   scene: SceneModel;
   isSelected: boolean;
   isLeaving: boolean;
-  isCapturePreview: boolean;
   /** Sits (geometrically) inside a section's bounds without being one of its members — tinted to look like the section is drawn over it, instead of looking like an unaffected scene sitting on top of the section. */
   isTrapped?: boolean;
 }
 
-export function SceneView({ scene, isSelected, isLeaving, isCapturePreview, isTrapped }: Props) {
+export function SceneView({ scene, isSelected, isLeaving, isTrapped }: Props) {
   const pos = useScenePosition(scene);
   const tool = useCanvasStore((s) => s.tool);
   const beginScenePointerDown = useCanvasStore((s) => s.beginScenePointerDown);
@@ -22,6 +21,7 @@ export function SceneView({ scene, isSelected, isLeaving, isCapturePreview, isTr
   const selectScene = useCanvasStore((s) => s.selectScene);
   const openSceneContextMenu = useCanvasStore((s) => s.openSceneContextMenu);
   const generateVariations = useCanvasStore((s) => s.generateVariations);
+  const setHoveredScene = useCanvasStore((s) => s.setHoveredScene);
   const { toWorld } = useCanvasOrigin();
 
   const isDragging = useCanvasStore(
@@ -68,7 +68,6 @@ export function SceneView({ scene, isSelected, isLeaving, isCapturePreview, isTr
         isSelected && 'scene--selected',
         isDragging && 'scene--dragging',
         isLeaving && 'scene--leaving',
-        isCapturePreview && 'scene--capture-preview',
         isTrapped && 'scene--trapped',
         showBounds && 'scene--debug-bounds',
       ]
@@ -80,6 +79,8 @@ export function SceneView({ scene, isSelected, isLeaving, isCapturePreview, isTr
       onPointerUp={onPointerUp}
       onContextMenu={openMenu}
       onDoubleClick={onDoubleClick}
+      onPointerEnter={() => setHoveredScene(scene.id)}
+      onPointerLeave={() => setHoveredScene(null)}
     >
       <div
         className="scene__image"

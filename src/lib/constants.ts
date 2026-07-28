@@ -4,7 +4,7 @@ export const SECTION_MIN_HEIGHT = 150;
 /** All mock scenes are square at this size. */
 export const SCENE_SIZE = 1024;
 
-export const WRAP_PADDING_DEFAULT = 32;
+export const WRAP_PADDING_DEFAULT = 48;
 export const WRAP_PADDING_MIN = 8;
 /** Debug panel's "Wrap padding" slider bounds. */
 export const WRAP_PADDING_SLIDER_MIN = 24;
@@ -14,15 +14,23 @@ export const DEFAULT_GROW_PADDING = 24;
 export const DEFAULT_GROW_DURATION = 180;
 
 /** Gap between a double-clicked scene's generated variations, and between them and the source scene. */
-export const VARIATION_GAP = 24;
+export const VARIATION_GAP = 4;
 
 export const ZOOM_MIN = 0.1;
 export const ZOOM_MAX = 4;
+
+/** At or below this zoom, scene names/menu icons and section header chips hide — too small to read, and cluttering a fully-zoomed-out view. */
+export const CHROME_HIDE_ZOOM_THRESHOLD = 0.1;
 
 /** Zoom level used when framing content on load / scenario reset — true 30%, not auto-fit. */
 export const DEFAULT_ZOOM = 0.3;
 
 export const SECTION_BORDER_BAND = 8;
+
+/** Section corner radius, a literal fixed screen-px value regardless of zoom — same "always renders as the same number" rationale as border width. */
+export const SECTION_BORDER_RADIUS = 24;
+/** Corner radius for the in-progress "drawing a new section" preview, same fixed-screen-px rationale. */
+export const DRAW_PREVIEW_BORDER_RADIUS = 12;
 
 /**
  * Fixed screen-px footprint of each scene's chrome (SceneOverlayLayer),
@@ -35,6 +43,9 @@ export const SECTION_BORDER_BAND = 8;
  */
 export const SCENE_LABEL_CHROME_HEIGHT = 26;
 export const SCENE_MENU_CHROME_HEIGHT = 22;
+
+/** Extra breathing room (fixed screen-px) around the label+frame+menu-button union for the hover wrap-outline in SceneOverlayLayer. */
+export const SCENE_HOVER_WRAP_PADDING = 16;
 
 /** Default (non-auto-pick) section fill — #26262C, as an "R, G, B" triplet so it composes with SECTION_BG_OPACITY into `rgba(...)`. */
 export const SECTION_EMPTY_BG_RGB = '38, 38, 44';

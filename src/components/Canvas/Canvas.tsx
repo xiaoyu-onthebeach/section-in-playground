@@ -10,7 +10,7 @@ import { SectionLabelsLayer } from './SectionLabelsLayer';
 import { SectionBordersLayer } from './SectionBordersLayer';
 import { SceneOverlayLayer } from './SceneOverlayLayer';
 import { DragOverlays } from './DragOverlays';
-import { useActiveCaptureIds, useActiveLeavingIds, useVisuallyCoveredSceneIds } from '../../hooks/useDerivedState';
+import { useActiveLeavingIds, useVisuallyCoveredSceneIds } from '../../hooks/useDerivedState';
 import { SectionContextMenu } from '../ContextMenu/SectionContextMenu';
 import { Toast } from '../Toast/Toast';
 import { Toolbar } from '../Toolbar/Toolbar';
@@ -45,7 +45,6 @@ export function Canvas() {
   const openCanvasContextMenu = useCanvasStore((s) => s.openCanvasContextMenu);
 
   const leavingIds = useActiveLeavingIds();
-  const captureIds = useActiveCaptureIds();
 
   const [isSpaceDown, setIsSpaceDown] = useState(false);
   const [isPanning, setIsPanning] = useState(false);
@@ -254,7 +253,6 @@ export function Canvas() {
                         scene={scene}
                         isSelected={selection.sceneIds.includes(sceneId)}
                         isLeaving={leavingIds.has(sceneId)}
-                        isCapturePreview={captureIds.has(sceneId)}
                         isTrapped
                       />
                     );
@@ -272,7 +270,6 @@ export function Canvas() {
                         scene={scene}
                         isSelected={selection.sceneIds.includes(sceneId)}
                         isLeaving={leavingIds.has(sceneId)}
-                        isCapturePreview={captureIds.has(sceneId)}
                       />
                     );
                   })}
@@ -293,7 +290,6 @@ export function Canvas() {
                   scene={scene}
                   isSelected={selection.sceneIds.includes(id)}
                   isLeaving={leavingIds.has(id)}
-                  isCapturePreview={captureIds.has(id)}
                 />
               );
             })}

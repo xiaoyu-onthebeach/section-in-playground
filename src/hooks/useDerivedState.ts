@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useCanvasStore } from '../store/canvasStore';
-import type { Point, Rect, SceneModel } from '../types';
+import type { DragState, Point, Rect, SceneModel } from '../types';
 import { boundingBox, chromeAwarePadding, isFullyInside, rectsIntersect } from '../lib/geometry';
 import { computeDropTarget } from '../lib/dragLogic';
 import { computeMembership, membersOfSection } from '../lib/membership';
@@ -38,24 +38,66 @@ export function useScenePosition(scene: SceneModel): Point {
 export function useSectionRect(sectionId: string, committed: Rect): Rect {
   const highlight = useDragHighlight();
   return useCanvasStore((s) => {
-    const { dragState, dragOriginRects, resizePreviewRects } = s;
-    if (dragState?.kind === 'section-move' && dragState.sectionIds.includes(sectionId) && dragOriginRects) {
-      const origRect = dragOriginRects[sectionId];
-      if (origRect) {
-        const dx = dragState.current.x - dragState.origin.x;
-        const dy = dragState.current.y - dragState.origin.y;
-        return { x: origRect.x + dx, y: origRect.y + dy, width: origRect.width, height: origRect.height };
-      }
-    }
-    if (dragState?.kind === 'section-resize' && dragState.sectionIds.includes(sectionId) && resizePreviewRects) {
-      const preview = resizePreviewRects[sectionId];
-      if (preview) return preview;
-    }
-    if (dragState?.kind === 'scene' && highlight.sectionId === sectionId && highlight.grownRect) {
+    const live = computeLiveSectionMoveOrResizeRect(sectionId, s.dragState, s.dragOriginRects, s.resizePreviewRects);
+    if (live) return live;
+    if (s.dragState?.kind === 'scene' && highlight.sectionId === sectionId && highlight.grownRect) {
       return highlight.grownRect;
     }
     return committed;
   });
+}
+
+/** Shared by useSectionRect and useOverlappingFrontSectionIds — the section-move/resize live-preview part only (not the scene-drag grow-highlight case, which only ever applies to a single section at a time and doesn't need to be checked per-section in a loop). */
+function computeLiveSectionMoveOrResizeRect(
+  sectionId: string,
+  dragState: DragState,
+  dragOriginRects: Record<string, Rect> | null,
+  resizePreviewRects: Record<string, Rect> | null
+): Rect | null {
+  if (dragState?.kind === 'section-move' && dragState.sectionIds.includes(sectionId) && dragOriginRects) {
+    const origRect = dragOriginRects[sectionId];
+    if (origRect) {
+      const dx = dragState.current.x - dragState.origin.x;
+      const dy = dragState.current.y - dragState.origin.y;
+      return { x: origRect.x + dx, y: origRect.y + dy, width: origRect.width, height: origRect.height };
+    }
+  }
+  if (dragState?.kind === 'section-resize' && dragState.sectionIds.includes(sectionId) && resizePreviewRects) {
+    const preview = resizePreviewRects[sectionId];
+    if (preview) return preview;
+  }
+  return null;
+}
+
+/** Sections currently rendered in front of at least one other section they geometrically overlap — i.e. "section 1 is on top of section 2" — so the front one's border stays visible even at rest (not just on hover/select), making the stacking relationship legible. Accounts for a live section-move/resize drag, not just the committed position. */
+export function useOverlappingFrontSectionIds(): Set<string> {
+  const sectionOrder = useCanvasStore((s) => s.sectionOrder);
+  const sections = useCanvasStore((s) => s.sections);
+  const dragState = useCanvasStore((s) => s.dragState);
+  const dragOriginRects = useCanvasStore((s) => s.dragOriginRects);
+  const resizePreviewRects = useCanvasStore((s) => s.resizePreviewRects);
+
+  return useMemo(() => {
+    const liveRect = (id: string): Rect | null => {
+      const committed = sections[id];
+      if (!committed) return null;
+      return computeLiveSectionMoveOrResizeRect(id, dragState, dragOriginRects, resizePreviewRects) ?? committed;
+    };
+
+    const result = new Set<string>();
+    for (let i = 0; i < sectionOrder.length; i++) {
+      const rect = liveRect(sectionOrder[i]);
+      if (!rect) continue;
+      for (let j = 0; j < i; j++) {
+        const otherRect = liveRect(sectionOrder[j]);
+        if (otherRect && rectsIntersect(rect, otherRect)) {
+          result.add(sectionOrder[i]);
+          break;
+        }
+      }
+    }
+    return result.size ? result : EMPTY_SET;
+  }, [sectionOrder, sections, dragState, dragOriginRects, resizePreviewRects]);
 }
 
 /** Which section (if any) should show the drop-target highlight during a scene drag. */
@@ -114,16 +156,25 @@ export function useActiveLeavingIds(): Set<string> {
   });
 }
 
-/** Loose scenes that would be captured if the in-progress section move (one or more sections) dropped now. */
+/**
+ * Loose scenes that would be captured if the in-progress drag dropped right
+ * now — either an existing section being moved over them (section-move,
+ * possibly several at once), or a brand-new section being drawn with the
+ * Section tool (section-draw) that happens to fully enclose them.
+ */
 export function useActiveCaptureIds(): Set<string> {
   return useCanvasStore((s) => {
-    if (s.dragState?.kind !== 'section-move' || !s.dragOriginRects) return EMPTY_SET;
-    const dx = s.dragState.current.x - s.dragState.origin.x;
-    const dy = s.dragState.current.y - s.dragState.origin.y;
-    const previewRects = s.dragState.sectionIds
-      .map((id) => s.dragOriginRects![id])
-      .filter((r): r is Rect => Boolean(r))
-      .map((r) => ({ x: r.x + dx, y: r.y + dy, width: r.width, height: r.height }));
+    let previewRects: Rect[] = [];
+    if (s.dragState?.kind === 'section-move' && s.dragOriginRects) {
+      const dx = s.dragState.current.x - s.dragState.origin.x;
+      const dy = s.dragState.current.y - s.dragState.origin.y;
+      previewRects = s.dragState.sectionIds
+        .map((id) => s.dragOriginRects![id])
+        .filter((r): r is Rect => Boolean(r))
+        .map((r) => ({ x: r.x + dx, y: r.y + dy, width: r.width, height: r.height }));
+    } else if (s.dragState?.kind === 'section-draw' && s.drawPreviewRect) {
+      previewRects = [s.drawPreviewRect];
+    }
     if (previewRects.length === 0) return EMPTY_SET;
     const loose = Object.values(s.scenes).filter((sc) => sc.sectionId === null);
     const captured = loose.filter((sc) => previewRects.some((pr) => isFullyInside(sc, pr)));
@@ -147,6 +198,11 @@ const EMPTY_MAP: Map<string, string> = new Map();
  * screen-space layer and otherwise wouldn't know to respect this stacking.
  * The scene being actively dragged is exempted so it reads as fully "live"
  * mid-drag.
+ * A loose scene that's currently a live capture-preview target (see
+ * `useActiveCaptureIds`) is also exempted, same reasoning as the actively-
+ * dragged scene above: it should read as "about to join, hover-highlighted"
+ * rather than dimmed/covered, even if it happens to sit under a section's
+ * (pre-drag) resting bounds.
  */
 export function useVisuallyCoveredSceneIds(): { coveredIds: Set<string>; hostSectionId: Map<string, string> } {
   const scenes = useCanvasStore((s) => s.scenes);
@@ -154,6 +210,7 @@ export function useVisuallyCoveredSceneIds(): { coveredIds: Set<string>; hostSec
   const sections = useCanvasStore((s) => s.sections);
   const sectionOrder = useCanvasStore((s) => s.sectionOrder);
   const dragState = useCanvasStore((s) => s.dragState);
+  const captureIds = useActiveCaptureIds();
 
   return useMemo(() => {
     const draggingIds = dragState?.kind === 'scene' ? new Set(dragState.sceneIds) : null;
@@ -163,6 +220,7 @@ export function useVisuallyCoveredSceneIds(): { coveredIds: Set<string>; hostSec
       const scene = scenes[sceneId];
       if (!scene) continue;
       if (draggingIds?.has(sceneId)) continue;
+      if (captureIds.has(sceneId)) continue;
       const ownIndex = scene.sectionId ? sectionIndex.get(scene.sectionId) ?? -1 : -1;
       let host: string | null = null;
       for (const sectionId of sectionOrder) {
@@ -173,7 +231,7 @@ export function useVisuallyCoveredSceneIds(): { coveredIds: Set<string>; hostSec
       if (host) hostSectionId.set(sceneId, host);
     }
     return { coveredIds: hostSectionId.size ? new Set(hostSectionId.keys()) : EMPTY_SET, hostSectionId: hostSectionId.size ? hostSectionId : EMPTY_MAP };
-  }, [scenes, sceneOrder, sections, sectionOrder, dragState]);
+  }, [scenes, sceneOrder, sections, sectionOrder, dragState, captureIds]);
 }
 
 /** Membership map, keyed off each scene's stored sectionId (see SceneModel.sectionId). */

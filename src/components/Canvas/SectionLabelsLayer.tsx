@@ -4,6 +4,7 @@ import { useSectionRect, useSectionBackground } from '../../hooks/useDerivedStat
 import { worldToScreen } from '../../lib/coords';
 import { useCanvasOrigin } from '../../canvas/CanvasOriginContext';
 import { SectionIcon } from '../Toolbar/icons';
+import { CHROME_HIDE_ZOOM_THRESHOLD } from '../../lib/constants';
 import type { SectionModel } from '../../types';
 import './SectionLabelsLayer.css';
 
@@ -78,6 +79,10 @@ function SectionLabel({ section }: { section: SectionModel }) {
     (e.currentTarget as Element).releasePointerCapture(e.pointerId);
     endSectionMove();
   };
+
+  // Too small to read at a very zoomed-out view — hide the chip entirely,
+  // unless it's mid-rename (don't yank an open text input from under the user).
+  if (viewport.zoom <= CHROME_HIDE_ZOOM_THRESHOLD && !isRenaming) return null;
 
   return (
     <div

@@ -1,6 +1,15 @@
 import type { CanvasSnapshot, SceneModel, SectionModel } from '../types';
 import { makeId } from './id';
-import { SCENE_COLOR, SCENE_IMAGES, SCENE_SIZE } from './constants';
+import {
+  SCENE_COLOR,
+  SCENE_IMAGES,
+  SCENE_SIZE,
+  VARIATION_GAP,
+  SCENE_LABEL_CHROME_HEIGHT,
+  SCENE_MENU_CHROME_HEIGHT,
+  SCENE_HOVER_WRAP_PADDING,
+  DEFAULT_ZOOM,
+} from './constants';
 
 /**
  * Every scenario's geometry below was hand-tuned at a 2048px scene size
@@ -52,19 +61,29 @@ function snapshotOf(scenes: SceneModel[], sections: SectionModel[] = []): Canvas
  * than a plain grid.
  */
 export function createDefaultSnapshot(): CanvasSnapshot {
-  // Wider than a typical world-unit gap — the name label (above) and menu
-  // button (below) are now fixed-screen-size overlays living outside the
-  // frame, so neighboring rows need enough breathing room that they don't
-  // collide at the default zoom.
-  const gap = s(500);
-  const stride = SCENE_SIZE + gap;
+  // VARIATION_GAP (24px) is the desired visual gap between each scene's
+  // hover/selection outline, not the bare image frame — so it has to add in
+  // the label/menu-button chrome and the outline's own padding, all fixed
+  // screen-px regardless of zoom (see SceneOverlayLayer's scene-hover-wrap).
+  // Converting those through DEFAULT_ZOOM — the zoom this scenario loads at —
+  // turns them into the matching world-space allowance, same technique as
+  // chromeAwarePadding. Row gap needs both the label chrome above AND the
+  // menu-button chrome below (stacked rows), so it's taller than the column
+  // gap, which only needs the outline's side padding.
+  const gapWorld = VARIATION_GAP / DEFAULT_ZOOM;
+  const outlineSide = SCENE_HOVER_WRAP_PADDING / DEFAULT_ZOOM;
+  const outlineTop = (SCENE_LABEL_CHROME_HEIGHT + SCENE_HOVER_WRAP_PADDING) / DEFAULT_ZOOM;
+  const outlineBottom = (SCENE_MENU_CHROME_HEIGHT + SCENE_HOVER_WRAP_PADDING) / DEFAULT_ZOOM;
+
+  const colStride = Math.round(SCENE_SIZE + gapWorld + 2 * outlineSide);
+  const rowStride = Math.round(SCENE_SIZE + gapWorld + outlineTop + outlineBottom);
   const cols = 4;
   const scenes: SceneModel[] = Array.from({ length: 12 }, (_, i) => {
     const row = Math.floor(i / cols);
     const indexInRow = i % cols;
     const colOffset = row === 0 ? 0 : 1;
     const col = indexInRow + colOffset;
-    return scene(`Scene ${i + 1}`, col * stride, row * stride);
+    return scene(`Scene ${i + 1}`, col * colStride, row * rowStride);
   });
   return snapshotOf(scenes);
 }

@@ -1,6 +1,7 @@
 import { useCanvasStore } from '../../store/canvasStore';
-import { useSectionRect, useDragHighlight } from '../../hooks/useDerivedState';
+import { useSectionRect, useDragHighlight, useOverlappingFrontSectionIds } from '../../hooks/useDerivedState';
 import { worldToScreen } from '../../lib/coords';
+import { DRAW_PREVIEW_BORDER_RADIUS, SECTION_BORDER_RADIUS } from '../../lib/constants';
 import { ResizeHandles } from './ResizeHandles';
 import type { SectionModel } from '../../types';
 import './SectionBordersLayer.css';
@@ -26,20 +27,19 @@ import './SectionBordersLayer.css';
 const BORDER_WIDTH = 1.5;
 const BORDER_WIDTH_SELECTED = 1.5;
 const BORDER_WIDTH_HIGHLIGHT = 2.5;
-const BORDER_RADIUS = 24; // world-space px, matches .section-visual's own border-radius
 const DRAW_PREVIEW_BORDER_WIDTH = 1.5; // matches .draw-preview's border in DragOverlays.css
-const DRAW_PREVIEW_BORDER_RADIUS = 12; // matches .draw-preview's border-radius
 
 export function SectionBordersLayer() {
   const sectionOrder = useCanvasStore((s) => s.sectionOrder);
   const sections = useCanvasStore((s) => s.sections);
+  const overlappingFrontIds = useOverlappingFrontSectionIds();
 
   return (
     <div className="section-borders-layer">
       {sectionOrder.map((id) => {
         const section = sections[id];
         if (!section) return null;
-        return <SectionBorder key={id} section={section} />;
+        return <SectionBorder key={id} section={section} isOverlappingFront={overlappingFrontIds.has(id)} />;
       })}
       <DrawPreviewBorder />
     </div>
@@ -67,13 +67,13 @@ function DrawPreviewBorder() {
         width: drawPreviewRect.width * viewport.zoom,
         height: drawPreviewRect.height * viewport.zoom,
         borderWidth: DRAW_PREVIEW_BORDER_WIDTH,
-        borderRadius: DRAW_PREVIEW_BORDER_RADIUS * viewport.zoom,
+        borderRadius: DRAW_PREVIEW_BORDER_RADIUS,
       }}
     />
   );
 }
 
-function SectionBorder({ section }: { section: SectionModel }) {
+function SectionBorder({ section, isOverlappingFront }: { section: SectionModel; isOverlappingFront: boolean }) {
   const rect = useSectionRect(section.id, section);
   const viewport = useCanvasStore((s) => s.viewport);
   const isSelected = useCanvasStore((s) => s.selection.sectionIds.includes(section.id));
@@ -83,14 +83,26 @@ function SectionBorder({ section }: { section: SectionModel }) {
   const growDuration = useCanvasStore((s) => s.debug.growDuration);
   const highlight = useDragHighlight();
   const isHighlighted = highlight.sectionId === section.id;
+  const isHovered = useCanvasStore((s) => s.hoveredSectionId === section.id);
   const sectionBorderColor = useCanvasStore((s) => s.debug.sectionBorderColor);
 
   const screenPos = worldToScreen(viewport, { x: rect.x, y: rect.y });
   const width = rect.width * viewport.zoom;
   const height = rect.height * viewport.zoom;
-  const borderRadius = BORDER_RADIUS * viewport.zoom;
+  const borderRadius = SECTION_BORDER_RADIUS;
 
-  const borderWidth = isHighlighted ? BORDER_WIDTH_HIGHLIGHT : isSelected ? BORDER_WIDTH_SELECTED : BORDER_WIDTH;
+  // Resting/unselected sections show no border at all — hovering brings it
+  // back (same width/color as before this change), selection always shows it
+  // regardless of hover, and a section rendered in front of another one it
+  // geometrically overlaps also keeps its border, so the stacking/"on top
+  // of" relationship stays legible without needing to hover it first.
+  const borderWidth = isHighlighted
+    ? BORDER_WIDTH_HIGHLIGHT
+    : isSelected
+      ? BORDER_WIDTH_SELECTED
+      : isHovered || isOverlappingFront
+        ? BORDER_WIDTH
+        : 0;
   const borderColor = isHighlighted
     ? 'var(--section-border-highlight)'
     : isSelected

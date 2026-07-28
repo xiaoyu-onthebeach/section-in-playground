@@ -18,11 +18,6 @@
   pointer-events: none;
 }
 
-.scene--selected {
-  background: #131316;
-  border-color: #ffffff;
-}
-
 .scene--dragging {
   cursor: grabbing;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
@@ -32,11 +27,6 @@
 .scene--leaving {
   filter: grayscale(0.75) opacity(0.55);
   outline: 1.5px dashed rgba(255, 255, 255, 0.5);
-  outline-offset: 2px;
-}
-
-.scene--capture-preview {
-  outline: 2px solid var(--section-border-highlight);
   outline-offset: 2px;
 }
 
