@@ -10,7 +10,12 @@ export const WRAP_PADDING_MIN = 8;
 export const WRAP_PADDING_SLIDER_MIN = 24;
 export const WRAP_PADDING_SLIDER_MAX = 100;
 
-export const DEFAULT_GROW_PADDING = 24;
+// Matches WRAP_PADDING_DEFAULT so a scene captured via auto-grow gets the
+// same visual margin as one captured via wrap — otherwise the newly-grown
+// side looks noticeably tighter than the section's other (wrap-established)
+// sides, an inconsistency independent of the debug panel's separate
+// grow/wrap sliders, which stay independently tunable from here.
+export const DEFAULT_GROW_PADDING = 48;
 export const DEFAULT_GROW_DURATION = 180;
 
 /** Gap between a double-clicked scene's generated variations, and between them and the source scene. */
